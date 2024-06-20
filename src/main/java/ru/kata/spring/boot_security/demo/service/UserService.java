@@ -59,15 +59,13 @@ public class UserService implements UserDetailsService {
 
     public boolean saveUser(User user) {
         if (user.getId() == null) {
-            // Новый пользователь
             if (userRepository.findByUsername(user.getUsername()) != null) {
-                return false; // Имя пользователя уже существует
+                return false;
             }
             user.setRoles(Collections.singleton(new Role(1L, "ROLE_USER")));
             user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
             userRepository.save(user);
         } else {
-            // Обновление существующего пользователя
             User existingUser = userRepository.findById(user.getId()).orElse(null);
             if (existingUser != null) {
                 existingUser.setUsername(user.getUsername());
@@ -78,7 +76,7 @@ public class UserService implements UserDetailsService {
                 existingUser.setRoles(user.getRoles());
                 userRepository.save(existingUser);
             } else {
-                return false; // Пользователь с данным ID не найден
+                return false;
             }
         }
         return true;

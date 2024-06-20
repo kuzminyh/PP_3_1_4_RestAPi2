@@ -32,16 +32,21 @@
         <form th:action="@{/admin}" method="post">
           <input type="hidden" name="userId" th:value="${user.id}"/>
           <input type="hidden" name="action" value="delete"/>
-          <button type="submit">Delete</button>
-          <a th:href="@{/updateUser(userId=${user.id})}">
-            <button type="button">Edit</button>
-          </a>
+          <button type="submit">Удалить пользователя</button>
+        </form>
+        <form th:action="@{/updateUser}" method="get">
+          <input type="hidden" name="userId" th:value="${user.id}"/>
+          <button type="submit">Изменить пользователя</button>
+        </form>
+        <form th:action="@{/admin/assignAdminRole}" method="post">
+          <input type="hidden" name="userId" th:value="${user.id}"/>
+          <button type="submit">Добавить Права Администратора</button>
         </form>
       </td>
     </tr>
     </tbody>
   </table>
-  <a th:href="@{/users/new}">
+  <a th:href="@{/admin/users/new}">
     <button type="button">Добавить нового пользователя</button>
   </a>
   <a th:href="@{/}">Главная</a>
