@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
@@ -31,32 +32,22 @@ public class AdminController {
 
     @PostMapping("/users")
     public String saveUser(@ModelAttribute("user") User user,
-                           @RequestParam("password") String password,
                            @RequestParam("passwordConfirmation") String passwordConfirmation,
-                           Model model) {
-        if (!password.equals(passwordConfirmation)) {
+                           BindingResult bindingResult, Model model) {
+
+        if (bindingResult.hasErrors()) {
+            return "user-form";
+        }
+        if (!user.getPassword().equals(passwordConfirmation)) {
             model.addAttribute("passwordError", "Пароли не совпадают");
             return "user-form";
         }
-        if (user.getId() != null) {
-            User existingUser = userService.findUserById(user.getId());
-            if (existingUser != null) {
-                if (password != null && !password.isEmpty()) {
-                    existingUser.setPassword(passwordEncoder.encode(password));
-                }
-                existingUser.setUsername(user.getUsername());
-                existingUser.setEmail(user.getEmail());
-                userService.saveUser(existingUser);
-            } else {
-                model.addAttribute("userError", "Пользователь не найден");
-                return "user-form";
-            }
-        } else {
-            if (password != null && !password.isEmpty()) {
-                user.setPassword(passwordEncoder.encode(password));
-            }
-            userService.saveUser(user);
+
+        if (!userService.saveUser(user)) {
+            model.addAttribute("usernameError", "Пользователь с таким именем уже существует");
+            return "user-form";
         }
+
         return "redirect:/admin";
     }
 
@@ -69,21 +60,21 @@ public class AdminController {
 
     @PostMapping("/updateUser")
     public String updateUser(@ModelAttribute User user,
-                             @RequestParam("password") String password,
                              @RequestParam("passwordConfirmation") String passwordConfirmation,
-                             Model model) {
-        if (!password.equals(passwordConfirmation)) {
+                             BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            return "user-form";
+        }
+        if (!user.getPassword().equals(passwordConfirmation)) {
             model.addAttribute("passwordError", "Пароли не совпадают");
-            return "user-form"; // Возврат к форме, если пароли не совпадают
+            return "user-form";
         }
 
-        if (password != null && !password.isEmpty()) {
-            user.setPassword(passwordEncoder.encode(password));
-        } else {
-            User existingUser = userService.findUserById(user.getId());
-            user.setPassword(existingUser.getPassword());
+        if (!userService.saveUser(user)) {
+            model.addAttribute("usernameError", "Пользователь с таким именем уже существует или другой сбой");
+            return "user-form";
         }
-        userService.saveUser(user);
+
         return "redirect:/admin";
     }
 
@@ -91,7 +82,7 @@ public class AdminController {
     public String deleteUser(@RequestParam(required = true, defaultValue = "") Long userId,
                              @RequestParam(required = true, defaultValue = "") String action,
                              Model model) {
-        if ("delete".equals(action)) {
+        if (action.equals("delete")) {
             boolean result = userService.deleteUser(userId);
             if (result) {
                 System.out.println("User deleted successfully.");
@@ -111,14 +102,18 @@ public class AdminController {
     @PostMapping("/admin/assignAdminRole")
     public String assignAdminRole(@RequestParam("userId") Long userId) {
         User user = userService.findUserById(userId);
+
         boolean hasAdminRole = user.getRoles().stream()
-                .anyMatch(role -> "ROLE_ADMIN".equals(role.getName()));
+                .anyMatch(role -> role.getName().equals("ROLE_ADMIN"));
+
         if (hasAdminRole) {
             return "redirect:/admin";
         }
+
         Role adminRole = new Role(2L);
         user.getRoles().add(adminRole);
         userService.saveUser(user);
+
         return "redirect:/admin";
     }
 }
