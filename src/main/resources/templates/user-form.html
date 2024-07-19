@@ -45,7 +45,7 @@
 <h1 th:text="${user.id == null ? 'Добавить пользователя' : 'Обновить пользователя'}"></h1>
 
 <form th:action="@{/users}" th:object="${user}" method="post">
-    <input type="hidden" th:field="*{id}"/> <!-- Скрытое поле для ID пользователя -->
+    <input type="hidden" th:field="*{id}"/>
     <div>
         <label for="username">Имя пользователя:</label>
         <input type="text" th:field="*{username}" id="username" placeholder="Username" autofocus="true"/>

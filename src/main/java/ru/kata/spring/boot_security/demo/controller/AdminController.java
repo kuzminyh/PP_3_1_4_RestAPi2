@@ -9,14 +9,16 @@ import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.UserService;
+
+import java.util.Collections;
+
 @Controller
 public class AdminController {
 
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+
 
     @GetMapping("/admin")
     public String userList(Model model) {
@@ -31,23 +33,16 @@ public class AdminController {
     }
 
     @PostMapping("/users")
-    public String saveUser(@ModelAttribute("user") User user,
-                           @RequestParam("passwordConfirmation") String passwordConfirmation,
-                           BindingResult bindingResult, Model model) {
+    public String saveUser(@ModelAttribute("userForm") User userForm, BindingResult bindingResult, Model model) {
 
         if (bindingResult.hasErrors()) {
             return "user-form";
         }
-        if (!user.getPassword().equals(passwordConfirmation)) {
+        if (!userForm.getPassword().equals(userForm.getPasswordConfirmation())) {
             model.addAttribute("passwordError", "Пароли не совпадают");
             return "user-form";
         }
-
-        if (!userService.saveUser(user)) {
-            model.addAttribute("usernameError", "Пользователь с таким именем уже существует");
-            return "user-form";
-        }
-
+        userService.saveUser(userForm);
         return "redirect:/admin";
     }
 
@@ -70,10 +65,10 @@ public class AdminController {
             return "user-form";
         }
 
-        if (!userService.saveUser(user)) {
-            model.addAttribute("usernameError", "Пользователь с таким именем уже существует или другой сбой");
-            return "user-form";
-        }
+//        if (!userService.saveUser(user)) {
+//            model.addAttribute("usernameError", "Пользователь с таким именем уже существует или другой сбой");
+//            return "user-form";
+//        }
 
         return "redirect:/admin";
     }
@@ -83,12 +78,13 @@ public class AdminController {
                              @RequestParam(required = true, defaultValue = "") String action,
                              Model model) {
         if (action.equals("delete")) {
-            boolean result = userService.deleteUser(userId);
-            if (result) {
-                System.out.println("User deleted successfully.");
-            } else {
-                System.out.println("Failed to delete user. User not found.");
-            }
+         userService.deleteUser(userId);
+//            boolean result =
+//            if (result) {
+//                System.out.println("User deleted successfully.");
+//            } else {
+//                System.out.println("Failed to delete user. User not found.");
+//            }
         }
         return "redirect:/admin";
     }
@@ -109,9 +105,7 @@ public class AdminController {
         if (hasAdminRole) {
             return "redirect:/admin";
         }
-
-        Role adminRole = new Role(2L);
-        user.getRoles().add(adminRole);
+        user.getRoles().add(new Role(2L));
         userService.saveUser(user);
 
         return "redirect:/admin";

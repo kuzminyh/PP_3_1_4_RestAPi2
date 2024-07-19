@@ -19,7 +19,7 @@ public class NewsController {
     public String news(Model model, Principal principal) {
         if (principal != null) {
             String username = principal.getName();
-            User currentUser = userService.findUserByUsername(username);
+            User currentUser = (User) userService.loadUserByUsername(username);
             model.addAttribute("currentUser", currentUser);
         }
         return "news";
