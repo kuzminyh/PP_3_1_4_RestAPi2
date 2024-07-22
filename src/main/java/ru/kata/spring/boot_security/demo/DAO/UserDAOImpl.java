@@ -17,12 +17,6 @@ public class UserDAOImpl implements UserDAO{
     @PersistenceContext
     private EntityManager em;
 
-    private final BCryptPasswordEncoder encoder;
-
-    public UserDAOImpl(BCryptPasswordEncoder encoder) {
-        this.encoder = encoder;
-    }
-
 
     @Override
     public List<User> getUsers() {
@@ -31,7 +25,6 @@ public class UserDAOImpl implements UserDAO{
 
     @Override
     public void saveUser(User user) {
-        user.setPassword(encoder.encode(user.getPassword()));
         if(user.getRoles() == null) {
             user.setRoles(Collections.singleton(new Role(1L, "ROLE_USER")));
         }
@@ -41,7 +34,7 @@ public class UserDAOImpl implements UserDAO{
     @Override
     public void updateUser(User user) {
         User currentUser = em.find(User.class, user.getId());
-        if (!encoder.matches(user.getPassword(), currentUser.getPassword())) {
+        if (! encoder.matches(user.getPassword(), currentUser.getPassword())) {
             user.setPassword(encoder.encode(user.getPassword()));
         }
         em.merge(user);
