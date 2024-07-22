@@ -1,9 +1,8 @@
 package ru.kata.spring.boot_security.demo.DAO;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
-import ru.kata.spring.boot_security.demo.model.Role;
-import ru.kata.spring.boot_security.demo.model.User;
+import ru.kata.spring.boot_security.demo.Model.Role;
+import ru.kata.spring.boot_security.demo.Model.User;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -34,9 +33,6 @@ public class UserDAOImpl implements UserDAO{
     @Override
     public void updateUser(User user) {
         User currentUser = em.find(User.class, user.getId());
-        if (! encoder.matches(user.getPassword(), currentUser.getPassword())) {
-            user.setPassword(encoder.encode(user.getPassword()));
-        }
         em.merge(user);
     }
 

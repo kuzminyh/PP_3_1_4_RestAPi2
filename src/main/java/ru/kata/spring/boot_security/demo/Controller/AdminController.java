@@ -1,16 +1,13 @@
-package ru.kata.spring.boot_security.demo.controller;
+package ru.kata.spring.boot_security.demo.Controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import ru.kata.spring.boot_security.demo.model.Role;
-import ru.kata.spring.boot_security.demo.model.User;
-import ru.kata.spring.boot_security.demo.service.UserService;
-
-import java.util.Collections;
+import ru.kata.spring.boot_security.demo.Model.Role;
+import ru.kata.spring.boot_security.demo.Model.User;
+import ru.kata.spring.boot_security.demo.Service.UserService;
 
 @Controller
 public class AdminController {
@@ -79,12 +76,6 @@ public class AdminController {
                              Model model) {
         if (action.equals("delete")) {
          userService.deleteUser(userId);
-//            boolean result =
-//            if (result) {
-//                System.out.println("User deleted successfully.");
-//            } else {
-//                System.out.println("Failed to delete user. User not found.");
-//            }
         }
         return "redirect:/admin";
     }
