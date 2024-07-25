@@ -12,12 +12,15 @@ import ru.kata.spring.boot_security.demo.Service.UserService;
 @Controller
 public class AdminController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public AdminController(UserService userService) {
+        this.userService = userService;
+    }
 
 
 
-    @GetMapping("/admin")
+    @GetMapping("/admin/users")
     public String userList(Model model) {
         model.addAttribute("allUsers", userService.allUsers());
         return "admin";
@@ -40,7 +43,7 @@ public class AdminController {
             return "user-form";
         }
         userService.saveUser(userForm);
-        return "redirect:/admin";
+        return "redirect:/admin/users";
     }
 
     @GetMapping("/updateUser")
@@ -61,23 +64,17 @@ public class AdminController {
             model.addAttribute("passwordError", "Пароли не совпадают");
             return "user-form";
         }
-
-//        if (!userService.saveUser(user)) {
-//            model.addAttribute("usernameError", "Пользователь с таким именем уже существует или другой сбой");
-//            return "user-form";
-//        }
-
-        return "redirect:/admin";
+        return "redirect:/admin/users";
     }
 
-    @PostMapping("/admin")
+    @PostMapping("/admin/users")
     public String deleteUser(@RequestParam(required = true, defaultValue = "") Long userId,
                              @RequestParam(required = true, defaultValue = "") String action,
                              Model model) {
         if (action.equals("delete")) {
          userService.deleteUser(userId);
         }
-        return "redirect:/admin";
+        return "redirect:/admin/users";
     }
 
     @GetMapping("/admin/gt/{userId}")

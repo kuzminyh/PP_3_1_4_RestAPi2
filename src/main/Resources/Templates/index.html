@@ -15,8 +15,8 @@
     <div sec:authorize="isAuthenticated()">
         <h4><a th:href="@{/logout}">Выйти</a></h4>
     </div>
-    <h4><a th:href="@{/news}">Новости (только пользователь)</a></h4>
-    <h4><a th:href="@{/admin}">Пользователи (только админ)</a></h4>
+    <h4><a th:href="@{/home}">Новости (только пользователь)</a></h4>
+    <h4><a th:href="@{/admin/users}">Пользователи (только админ)</a></h4>
 </div>
 </body>
 </html>

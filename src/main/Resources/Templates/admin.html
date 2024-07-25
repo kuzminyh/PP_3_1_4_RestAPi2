@@ -29,7 +29,7 @@
         <span th:each="role : ${user.roles}" th:text="${role.name} + '; '">Role</span>
       </td>
       <td>
-        <form th:action="@{/admin}" method="post">
+        <form th:action="@{/admin/users}" method="post">
           <input type="hidden" name="userId" th:value="${user.id}"/>
           <input type="hidden" name="action" value="delete"/>
           <button type="submit">Удалить пользователя</button>

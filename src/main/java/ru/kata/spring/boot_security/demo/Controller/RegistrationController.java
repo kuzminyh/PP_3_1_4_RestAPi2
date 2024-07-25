@@ -13,8 +13,12 @@ import ru.kata.spring.boot_security.demo.Service.UserService;
 @Controller
 public class RegistrationController {
 
-    @Autowired
-    private UserService userService;
+
+    private final UserService userService;
+
+    public RegistrationController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/registration")
     public String registration(Model model) {
