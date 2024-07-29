@@ -1,4 +1,4 @@
-package ru.kata.spring.boot_security.demo.Model;
+package ru.kata.spring.boot_security.demo.model;
 
 import org.springframework.security.core.GrantedAuthority;
 
@@ -8,7 +8,10 @@ import java.util.Set;
 @Entity
 @Table(name = "role")
 public class Role implements GrantedAuthority {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
     private String name;
     @Transient

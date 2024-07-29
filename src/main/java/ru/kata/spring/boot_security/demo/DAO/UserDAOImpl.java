@@ -1,8 +1,8 @@
 package ru.kata.spring.boot_security.demo.DAO;
 
 import org.springframework.stereotype.Repository;
-import ru.kata.spring.boot_security.demo.Model.Role;
-import ru.kata.spring.boot_security.demo.Model.User;
+import ru.kata.spring.boot_security.demo.model.Role;
+import ru.kata.spring.boot_security.demo.model.User;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -24,15 +24,11 @@ public class UserDAOImpl implements UserDAO{
 
     @Override
     public void saveUser(User user) {
-        if(user.getRoles() == null) {
-            user.setRoles(Collections.singleton(new Role(1L, "ROLE_USER")));
-        }
         em.persist(user);
     }
 
     @Override
     public void updateUser(User user) {
-        User currentUser = em.find(User.class, user.getId());
         em.merge(user);
     }
 

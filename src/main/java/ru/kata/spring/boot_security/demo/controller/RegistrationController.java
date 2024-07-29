@@ -1,23 +1,22 @@
-package ru.kata.spring.boot_security.demo.Controller;
+package ru.kata.spring.boot_security.demo.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import ru.kata.spring.boot_security.demo.Model.User;
-import ru.kata.spring.boot_security.demo.Service.UserService;
+import ru.kata.spring.boot_security.demo.model.User;
+import ru.kata.spring.boot_security.demo.service.UserServiceImpl;
 
 @Controller
 public class RegistrationController {
 
 
-    private final UserService userService;
+    private final UserServiceImpl userServiceImpl;
 
-    public RegistrationController(UserService userService) {
-        this.userService = userService;
+    public RegistrationController(UserServiceImpl userServiceImpl) {
+        this.userServiceImpl = userServiceImpl;
     }
 
     @GetMapping("/registration")
@@ -37,7 +36,7 @@ public class RegistrationController {
             model.addAttribute("passwordError", "Пароли не совпадают");
             return "registration";
         }
-        userService.saveUser(userForm);
+        userServiceImpl.saveUser(userForm);
         return "redirect:/";
     }
 }

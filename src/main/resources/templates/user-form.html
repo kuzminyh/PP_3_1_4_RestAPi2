@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Добавить пользователя</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 40px;
+        }
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px #ccc;
+        }
+        div {
+            margin-bottom: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #4cae4c;
+        }
+    </style>
+</head>
+<body>
+<h1>Добавить пользователя</h1>
+
+<form th:action="@{/users}" th:object="${user}" method="post">
+    <input type="hidden" th:field="*{id}"/>
+    <div>
+        <label for="username">Имя пользователя:</label>
+        <input type="text" th:field="*{username}" id="username" placeholder="Username" autofocus="true"/>
+        <div th:if="${#fields.hasErrors('username')}" th:errors="*{username}">Username Error</div>
+        <div th:text="${usernameError}"></div>
+    </div>
+    <div>
+        <label for="email">Email:</label>
+        <input type="email" th:field="*{email}" id="email" placeholder="Email"/>
+        <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Email Error</div>
+    </div>
+    <div>
+        <label for="password">Пароль:</label>
+        <input type="password" name="password" id="password" placeholder="Password"/>
+    </div>
+    <div>
+        <label for="passwordConfirmation">Подтвердите пароль:</label>
+        <input type="password" name="passwordConfirmation" id="passwordConfirmation" placeholder="Confirm your password"/>
+        <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password Error</div>
+        <div th:text="${passwordError}"></div>
+    </div>
+    <div>
+        <label>Роль:</label>
+        <div>
+            <input type="checkbox" name="roleIds" value="1" id="role_admin"/>
+            <label for="role_admin">Администратор</label>
+        </div>
+        <div>
+            <input type="checkbox" name="roleIds" value="2" id="role_user"/>
+            <label for="role_user">Пользователь</label>
+        </div>
+        <div th:if="${roleError != null}" th:text="${roleError}"></div>
+    </div>
+    <button type="submit">Добавить пользователя</button>
+</form>
+
+<a th:href="@{/admin/users}">Назад к списку пользователей</a>
+
+</body>
+</html>
