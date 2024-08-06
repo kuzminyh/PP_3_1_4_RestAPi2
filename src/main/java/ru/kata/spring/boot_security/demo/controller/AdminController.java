@@ -6,29 +6,29 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
+import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.RoleServiceImpl;
+import ru.kata.spring.boot_security.demo.service.UserService;
 import ru.kata.spring.boot_security.demo.service.UserServiceImpl;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
 public class AdminController {
 
-    private final UserServiceImpl userServiceImpl;
-    private final RoleServiceImpl roleServiceImpl;
+    private final UserService userService;
+    private final RoleService roleService;
 
-    public AdminController(UserServiceImpl userServiceImpl, RoleServiceImpl roleServiceImpl) {
-        this.userServiceImpl = userServiceImpl;
-        this.roleServiceImpl = roleServiceImpl;
-    }
+   public AdminController(UserService userService, RoleService roleService) {
+       this.userService = userService;
+       this.roleService = roleService;
+   }
 
 
     @GetMapping("/admin/users")
     public String userList(Model model) {
-        model.addAttribute("allUsers", userServiceImpl.allUsers());
+        model.addAttribute("allUsers", userService.allUsers());
         return "admin";
     }
 
@@ -56,20 +56,18 @@ public class AdminController {
             return "user-form";
         }
 
-        Set<Role> roles = roleIds.stream()
-                .map(roleServiceImpl::findRoleById)
-                .collect(Collectors.toSet());
+        Set<Role> roles = roleService.findRolesByIds(roleIds);
         userForm.setRoles(roles);
 
-        userServiceImpl.saveUser(userForm);
+        userService.saveUser(userForm);
         return "redirect:/admin/users";
     }
 
     @GetMapping("/updateUser")
     public String showUpdateForm(@RequestParam("userId") long id, Model model) {
-        User user = userServiceImpl.findUserById(id);
+        User user = userService.findUserById(id);
         model.addAttribute("user", user);
-        model.addAttribute("allRoles", roleServiceImpl.getRoles());
+        model.addAttribute("allRoles", roleService.getRoles());
         return "user-update-form";
     }
 
@@ -84,13 +82,15 @@ public class AdminController {
             model.addAttribute("roleError", "Необходимо выбрать хотя бы одну роль");
             return "user-update-form";
         }
+        Set<Role> roles = roleService.findRolesByIds(roleIds);
+        userForm.setRoles(roles);
 
 
         if (userForm.getPassword().isEmpty()) {
-            User existingUser = userServiceImpl.findUserById(userForm.getId());
+            User existingUser = userService.findUserById(userForm.getId());
             userForm.setPassword(existingUser.getPassword());
         }
-        userServiceImpl.updateUser(userForm);
+        userService.updateUser(userForm);
         return "redirect:/admin/users";
     }
 
@@ -99,20 +99,20 @@ public class AdminController {
                              @RequestParam(required = true, defaultValue = "") String action,
                              Model model) {
         if (action.equals("delete")) {
-         userServiceImpl.deleteUser(userId);
+         userService.deleteUser(userId);
         }
         return "redirect:/admin/users";
     }
 
     @GetMapping("/admin/gt/{userId}")
     public String gtUser(@PathVariable("userId") Long userId, Model model) {
-        model.addAttribute("allUsers", userServiceImpl.usergtList(userId));
+        model.addAttribute("allUsers", userService.usergtList(userId));
         return "admin";
     }
 
     @PostMapping("/admin/assignAdminRole")
     public String assignAdminRole(@RequestParam("userId") Long userId) {
-        User user = userServiceImpl.findUserById(userId);
+        User user = userService.findUserById(userId);
 
         boolean hasAdminRole = user.getRoles().stream()
                 .anyMatch(role -> role.getName().equals("ROLE_ADMIN"));
@@ -121,7 +121,7 @@ public class AdminController {
             return "redirect:/admin/users";
         }
         user.getRoles().add(new Role(1L));
-        userServiceImpl.saveUser(user);
+        userService.saveUser(user);
 
         return "redirect:/admin/users";
     }

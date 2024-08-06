@@ -1,9 +1,13 @@
 package ru.kata.spring.boot_security.demo.DAO;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import ru.kata.spring.boot_security.demo.model.User;
 
 import java.util.List;
 
+@Repository
 public interface UserDAO {
 
     List<User> getUsers();
@@ -12,11 +16,13 @@ public interface UserDAO {
 
     void updateUser(User user);
 
-    User findUserById(long id);
+    //@Query("SELECT u FROM User u JOIN FETCH u.roles WHERE u.id = :id")
+    User findUserById(@Param("id") long id);
 
     void deleteUser(long id);
 
-    User findByUsername(String username);
+   // @Query("SELECT u FROM User u JOIN FETCH u.roles WHERE u.username = :username")
+    User findByUsername(@Param("username") String username);
 
     List<User> usergtList(Long idMin);
 

@@ -7,16 +7,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import ru.kata.spring.boot_security.demo.model.User;
+import ru.kata.spring.boot_security.demo.service.UserService;
 import ru.kata.spring.boot_security.demo.service.UserServiceImpl;
 
 @Controller
 public class RegistrationController {
 
 
-    private final UserServiceImpl userServiceImpl;
+    private final UserService userService;
 
-    public RegistrationController(UserServiceImpl userServiceImpl) {
-        this.userServiceImpl = userServiceImpl;
+    public RegistrationController(UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping("/registration")
@@ -36,7 +37,7 @@ public class RegistrationController {
             model.addAttribute("passwordError", "Пароли не совпадают");
             return "registration";
         }
-        userServiceImpl.saveUser(userForm);
+        userService.saveUser(userForm);
         return "redirect:/";
     }
 }
