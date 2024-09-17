@@ -1,0 +1,14 @@
+.sidebar-wrapper {
+    background-color: #f8f9fa;
+    height: 100vh;
+    padding: 0;
+}
+.list-group-item {
+    font-size: 1.25rem;
+}
+.list-group-item-action {
+    border: none;
+}
+.list-group {
+    margin-bottom: 0;
+}

@@ -5,13 +5,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.UserService;
-import ru.kata.spring.boot_security.demo.service.UserServiceImpl;
 
 import java.security.Principal;
 
 @Controller
 public class UserController {
-
 
     private final UserService userService;
 
@@ -20,12 +18,10 @@ public class UserController {
     }
 
     @GetMapping("/home")
-    public String homePage(Model model, Principal principal) {
-        if (principal != null) {
-            String username = principal.getName();
-            User currentUser = (User) userService.loadUserByUsername(username);
-            model.addAttribute("currentUser", currentUser);
-        }
-        return "userHome";
+    public String userHomePage(Model model, Principal principal) {
+        // Получаем текущего пользователя по имени
+        User currentUser = userService.loadUserByUsername(principal.getName());
+        model.addAttribute("user", currentUser);
+        return "home"; // Название Thymeleaf шаблона для личного кабинета
     }
 }

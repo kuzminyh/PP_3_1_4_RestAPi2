@@ -1,18 +1,18 @@
 package ru.kata.spring.boot_security.demo.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
-import ru.kata.spring.boot_security.demo.service.RoleServiceImpl;
 import ru.kata.spring.boot_security.demo.service.UserService;
-import ru.kata.spring.boot_security.demo.service.UserServiceImpl;
 
+import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Controller
 public class AdminController {
@@ -20,11 +20,10 @@ public class AdminController {
     private final UserService userService;
     private final RoleService roleService;
 
-   public AdminController(UserService userService, RoleService roleService) {
-       this.userService = userService;
-       this.roleService = roleService;
-   }
-
+    public AdminController(UserService userService, RoleService roleService) {
+        this.userService = userService;
+        this.roleService = roleService;
+    }
 
     @GetMapping("/admin/users")
     public String userList(Model model) {
@@ -32,74 +31,67 @@ public class AdminController {
         return "admin";
     }
 
-    @GetMapping("/admin/users/new")
-    public String showNewUserForm(Model model) {
-        model.addAttribute("user", new User());
-        return "user-form";
-    }
-
-    @PostMapping("/users")
+    @PostMapping("/admin/users/new")
     public String saveUser(@ModelAttribute("user") User userForm,
                            @RequestParam("passwordConfirmation") String passwordConfirmation,
                            @RequestParam(value = "roleIds", required = false) Set<Long> roleIds,
-                           BindingResult bindingResult,
-                           Model model) {
+                           BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
+            model.addAttribute("allRoles", roleService.getRoles());
             return "user-form";
         }
         if (!userForm.getPassword().equals(passwordConfirmation)) {
             model.addAttribute("passwordError", "Пароли не совпадают");
+            model.addAttribute("allRoles", roleService.getRoles());
             return "user-form";
         }
         if (roleIds == null || roleIds.isEmpty()) {
             model.addAttribute("roleError", "Необходимо выбрать хотя бы одну роль");
+            model.addAttribute("allRoles", roleService.getRoles());
             return "user-form";
         }
 
         Set<Role> roles = roleService.findRolesByIds(roleIds);
         userForm.setRoles(roles);
-
         userService.saveUser(userForm);
         return "redirect:/admin/users";
     }
 
-    @GetMapping("/updateUser")
-    public String showUpdateForm(@RequestParam("userId") long id, Model model) {
-        User user = userService.findUserById(id);
-        model.addAttribute("user", user);
-        model.addAttribute("allRoles", roleService.getRoles());
-        return "user-update-form";
-    }
-
     @PostMapping("/updateUser")
-    public String updateUser(@ModelAttribute User userForm, @RequestParam(value = "roleIds", required = false) Set<Long> roleIds,
+    public String updateUser(@ModelAttribute User userForm,
+                             @RequestParam(value = "roleIds", required = false) Set<Long> roleIds,
                              BindingResult bindingResult, Model model) {
+
+        // Проверка на наличие ошибок
         if (bindingResult.hasErrors()) {
-            return "user-update-form";
+            model.addAttribute("allRoles", roleService.getRoles());
+            return "admin";
         }
 
+        // Проверка на роли
         if (roleIds == null || roleIds.isEmpty()) {
             model.addAttribute("roleError", "Необходимо выбрать хотя бы одну роль");
-            return "user-update-form";
+            return "admin";
         }
+
+        // Устанавливаем роли
         Set<Role> roles = roleService.findRolesByIds(roleIds);
         userForm.setRoles(roles);
 
-
-        if (userForm.getPassword().isEmpty()) {
-            User existingUser = userService.findUserById(userForm.getId());
-            userForm.setPassword(existingUser.getPassword());
-        }
+        // Вызываем метод обновления в сервисе
         userService.updateUser(userForm);
+
         return "redirect:/admin/users";
     }
+
+
 
     @PostMapping("/admin/users")
     public String deleteUser(@RequestParam(required = true, defaultValue = "") Long userId,
                              @RequestParam(required = true, defaultValue = "") String action,
                              Model model) {
         if (action.equals("delete")) {
-         userService.deleteUser(userId);
+            userService.deleteUser(userId);
         }
         return "redirect:/admin/users";
     }
@@ -110,19 +102,40 @@ public class AdminController {
         return "admin";
     }
 
-    @PostMapping("/admin/assignAdminRole")
-    public String assignAdminRole(@RequestParam("userId") Long userId) {
-        User user = userService.findUserById(userId);
 
-        boolean hasAdminRole = user.getRoles().stream()
-                .anyMatch(role -> role.getName().equals("ROLE_ADMIN"));
-
-        if (hasAdminRole) {
-            return "redirect:/admin/users";
+    @PostMapping("/register")
+    public String registerUser(@ModelAttribute("user") User userForm,
+                               @RequestParam("passwordConfirmation") String passwordConfirmation,
+                               @RequestParam(value = "roleIds", required = false) Set<Long> roleIds,
+                               BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            return "admin";
         }
-        user.getRoles().add(new Role(1L));
-        userService.saveUser(user);
-
+        if (!userForm.getPassword().equals(passwordConfirmation)) {
+            model.addAttribute("passwordError", "Пароли не совпадают");
+            return "admin";
+        }
+        if (roleIds == null || roleIds.isEmpty()) {
+            model.addAttribute("roleError", "Необходимо выбрать хотя бы одну роль");
+            return "admin";
+        }
+        Set<Role> roles = roleService.findRolesByIds(roleIds);
+        userForm.setRoles(roles);
+        userService.saveUser(userForm);
         return "redirect:/admin/users";
     }
+
+    @GetMapping("/getUser")
+    @ResponseBody
+    public User getUser(@RequestParam("userId") long userId) {
+        User user = userService.findUserById(userId);
+        System.out.println("Возвращаемые данные пользователя: " + user); // Для отладки
+        if (user != null) {
+            return user;
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+    }
+
+
 }

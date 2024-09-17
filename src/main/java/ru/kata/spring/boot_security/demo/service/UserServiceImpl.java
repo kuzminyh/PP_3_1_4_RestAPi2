@@ -30,20 +30,19 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public User loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userDAO.findByUsername(username);
-        Hibernate.initialize(user.getRoles());
         return user;
     }
 
     @Override
     @Transactional
     public void saveUser(User user) {
-        if(user.getRoles() == null){
+        if (user.getRoles() == null) {
             user.setRoles(Collections.singleton(new Role(2L, "ROLE_USER")));
         }
-            user.setPassword(encoder.encode(user.getPassword()));
-            userDAO.saveUser(user);
+        user.setPassword(encoder.encode(user.getPassword()));
+        userDAO.saveUser(user);
     }
 
 
@@ -51,7 +50,6 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     @Transactional
     public User findUserById(Long userId) {
         User user = userDAO.findUserById(userId);
-        Hibernate.initialize(user.getRoles());
         return user;
     }
 
@@ -74,7 +72,16 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     @Override
     @Transactional
     public void updateUser(User user) {
-        user.setPassword(encoder.encode(user.getPassword()));
+        User existingUser = userDAO.findUserById(user.getId());
+
+        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+            user.setPassword(existingUser.getPassword());
+        } else {
+            user.setPassword(encoder.encode(user.getPassword()));
+        }
+
         userDAO.updateUser(user);
     }
+
+
 }
