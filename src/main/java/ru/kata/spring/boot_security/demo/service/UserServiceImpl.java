@@ -22,11 +22,13 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     private final UserDAO userDAO;
 
     private final BCryptPasswordEncoder encoder;
+    private final BCryptPasswordEncoder passwordEncoder;
 
 
-    public UserServiceImpl(UserDAO userDAO, BCryptPasswordEncoder encoder) {
+    public UserServiceImpl(UserDAO userDAO, BCryptPasswordEncoder encoder, BCryptPasswordEncoder passwordEncoder) {
         this.userDAO = userDAO;
         this.encoder = encoder;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -73,15 +75,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     @Transactional
     public void updateUser(User user) {
         User existingUser = userDAO.findUserById(user.getId());
-
-        if (user.getPassword() == null || user.getPassword().isEmpty()) {
-            user.setPassword(existingUser.getPassword());
-        } else {
-            user.setPassword(encoder.encode(user.getPassword()));
-        }
-
+            if (!user.getPassword().equals(existingUser.getPassword()) ) {
+                user.setPassword(encoder.encode(user.getPassword()));
+            } else {
+                user.setPassword(existingUser.getPassword());
+            }
         userDAO.updateUser(user);
     }
-
-
 }
