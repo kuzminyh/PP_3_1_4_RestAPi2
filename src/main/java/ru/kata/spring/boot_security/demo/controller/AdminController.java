@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
 
     @RequestMapping("/users")
-    public String userList(Model model) {
+    public String userList() {
         return "admin"; // Рендерим admin.html
     }
 }

@@ -21,9 +21,6 @@ public class User implements UserDetails {
 
     private String password;
 
-    @Transient
-    private String passwordConfirmation;
-
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<Role> roles;
 
@@ -90,14 +87,6 @@ public class User implements UserDetails {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getPasswordConfirmation() {
-        return passwordConfirmation;
-    }
-
-    public void setPasswordConfirmation(String passwordConfirmation) {
-        this.passwordConfirmation = passwordConfirmation;
     }
 
     public Set<Role> getRoles() {
