@@ -1,69 +1,70 @@
 package ru.kata.spring.boot_security.demo.controller;
 
+import ru.kata.spring.boot_security.demo.entity.User;
+import ru.kata.spring.boot_security.demo.service.UserService;
+import jakarta.validation.Valid;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import ru.kata.spring.boot_security.demo.entity.Role;
-import ru.kata.spring.boot_security.demo.entity.User;
-import ru.kata.spring.boot_security.demo.service.RoleService;
-import ru.kata.spring.boot_security.demo.service.UserService;
-
-import java.util.Collection;
-import java.util.List;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
-@RequestMapping("/admin")
 public class AdminController {
 
     private final UserService userService;
-    private final RoleService roleService;
+    private final PasswordEncoder passwordEncoder;
 
-    public AdminController(final UserService userService, final RoleService roleService) {
+    public AdminController(UserService userService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
-        this.roleService=roleService;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    @GetMapping("")
-    public String getUsers(Model model){
-        List<User> users = userService.getAllUsers();
-        model.addAttribute("users", users);
+
+    @ModelAttribute("newUser")
+    public User getPerson() { return new User(); }
+
+    @GetMapping("/admin")
+    public String showAllUsers(Model model){
+        model.addAttribute("allUsers", userService.getAllUsers());
         return "admin";
     }
 
-    @GetMapping(value = "/new")
-    public String addNewUser(@ModelAttribute("user") User user, Model model) {
-        List<Role> roles = roleService.getAllRoles();
-        model.addAttribute("allRoles", roles);
-        return "add-user";
-    }
-
-    @PostMapping("/addUser")
-    public String addUser(@ModelAttribute("user") User user, @RequestParam List<Long> roles) {
-        Collection<Role> userRoles = roleService.getRoles(roles);
-        System.out.println(userRoles);
-        user.setRoles(userRoles);
+    @PostMapping("/admin")
+    public String addNewUser(@ModelAttribute("newUser") @Valid User user, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("allUsers", userService.getAllUsers());
+            return "admin";
+        }
         userService.saveUser(user);
         return "redirect:/admin";
     }
 
-    @GetMapping("/edit/{id}")
-    public String editUser(Model model, @PathVariable("id") long id) {
-        User user = userService.getUser(id);
-        model.addAttribute("user", user);
-        Collection<Role> roles = roleService.getAllRoles();
-        model.addAttribute("allRoles", roles);
-        return "edit-user";
-    }
-
-    @PostMapping("/update/{id}")
-    public String updateUser(@PathVariable int id, @ModelAttribute("user") User user) {
-        userService.saveUser(user);
-        return "redirect:/admin";
-    }
-
-    @PostMapping("/delete/{id}")
-    public String deleteUser(@PathVariable long id) {
+    @PostMapping("admin/{id}/delete")
+    public String deleteUser(@ModelAttribute("id") int id) {
         userService.deleteUser(id);
+        return "redirect:/admin";
+    }
+
+    @GetMapping("admin/{id}/edit")
+    public String editUser(@ModelAttribute("id") int id, Model model) {
+        model.addAttribute("user", userService.getUser(id));
+        return "edit";
+    }
+
+    @PostMapping("admin/{id}")
+    public String updateUser(@PathVariable("id") int id, @ModelAttribute("user") @Valid User user, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) { return "edit"; }
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        } else {
+            User existingUser = userService.getUser(id);
+            user.setPassword(existingUser.getPassword());
+        }
+        userService.updateUser(user);
         return "redirect:/admin";
     }
 
