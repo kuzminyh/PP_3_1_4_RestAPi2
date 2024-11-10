@@ -31,7 +31,7 @@ public class  UserServiceImpl implements UserService {
     public boolean saveUser(User user) {
         User userFromDB = userRepository.findByUsername(user.getUsername());
         if (userFromDB != null) { return false; }
-        user.setRoles(Collections.singleton(new Role(1, "ROLE_USER")));
+      //  user.setRoles(Collections.singleton(new Role(1, "ROLE_USER")));
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         return true;
