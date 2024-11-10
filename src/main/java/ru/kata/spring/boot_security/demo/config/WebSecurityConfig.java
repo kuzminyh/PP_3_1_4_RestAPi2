@@ -30,7 +30,8 @@ public class WebSecurityConfig {
                 .formLogin(form -> form
                         .successHandler(loginSuccessHandler)
                         .permitAll()
-                )
+
+               )
                 .logout(LogoutConfigurer::permitAll);
 
         return http.build();

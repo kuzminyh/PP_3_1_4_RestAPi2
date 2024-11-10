@@ -16,7 +16,6 @@
 <nav class="navbar navbar-expand-xl navbar-dark text-light bg-dark">
     <div class="container-fluid">
         <div>
-            <span class="navbar-brand" th:text="${#authentication.name}">Navbar</span>
             <span> WITH ROLES </span>
             <span sec:authorize="hasRole('ROLE_ADMIN')">ADMIN</span>
             <span sec:authorize="hasRole('ROLE_ADMIN')">USER</span>
@@ -35,11 +34,11 @@
 <div class="container-fluid">
     <div class="row flex-nowrap">
         <!--    левый сайдбар-->
-        <div class="col-auto col-md-9 col-xl-2 px-sm-2 px-0 bg-light">
+        <div class="col-auto col-md-9 col-xl-2 px-sm-2 px-0 ">
             <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
-                <a href="/" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-                    <span class="fs-5 d-none d-sm-inline">Menu</span>
-                </a>
+<!--                <a href="/" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none">-->
+<!--                    <span class="fs-5 d-none d-sm-inline">Menu</span>-->
+<!--                </a>-->
                 <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
                     <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                         <a class="nav-link active" href="/admin">ADMIN PANEL</a>
@@ -69,7 +68,7 @@
 
                 <div class="tab-content" id="pills-tabContent">
                     <div class="tab-pane fade show active" id="pills-nav-users" role="tabpanel" aria-labelledby="pills-nav-users-tab">
-                        <table class="table">
+                        <table class="table table-striped bg-white">
                             <thead>
                             <tr>
                                 <th>ID</th>
@@ -80,6 +79,7 @@
                                 <th>Roles</th>
                             </tr>
                             </thead>
+                            <tbody>
                             <tr th:each="user : ${allUsers}">
                                 <td th:utext="${user.getId()}"></td>
                                 <td th:utext="${user.getName()}"></td>
@@ -96,6 +96,7 @@
                                        th:data-bs-target="${'#deleteModal' + user.id}">DELETE</a>
                                 </td>
                             </tr>
+                            </tbody>
                         </table>
                     </div>
 
