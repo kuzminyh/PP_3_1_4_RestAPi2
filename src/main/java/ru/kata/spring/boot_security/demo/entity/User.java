@@ -1,9 +1,19 @@
 package ru.kata.spring.boot_security.demo.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -22,18 +32,17 @@ public class User implements UserDetails {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "name")
     @Email(message = "Некорректный адрес электронной почты")
     @NotBlank(message = "Имя не может быть пустым")
+    @Column(name = "name")
     private String name;
 
+    @Pattern(regexp = "^[A-Z[А-ЯЁ]][a-z[а-яё]]{1,30}", message = "Surname is incorrect. Example: Иванов / Ivanov")
     @Column(name = "surname")
     private String surname;
 
-
     @Positive
     @Column(name = "age")
-
     private int age;
 
     @NotEmpty(message = "Username should not be empty.")
@@ -47,74 +56,36 @@ public class User implements UserDetails {
     @ManyToMany(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
     @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<ru.kata.spring.boot_security.demo.entity.Role> roles;
+    private Set<Role> roles;
 
-    public User() {
-    }
+    public User() { }
 
 
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public String getName() {
-        return name;
-    }
+    public String getSurname() { return surname; }
+    public void setSurname(String surname) { this.surname = surname; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public int getAge() { return age; }
+    public void setAge(int age) { this.age = age; }
 
-    public String getSurname() {
-        return surname;
-    }
-
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public Set<ru.kata.spring.boot_security.demo.entity.Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set<ru.kata.spring.boot_security.demo.entity.Role> roles) {
-        this.roles = roles;
-    }
+    public Set<Role> getRoles() { return roles; }
+    public void setRoles(Set<Role> roles) { this.roles = roles; }
 
     @Override
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
 
     @Override
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return getRoles();
-    }
+    public Collection<? extends GrantedAuthority> getAuthorities() { return getRoles(); }
 
 }
