@@ -2,8 +2,6 @@ package ru.kata.spring.boot_security.demo.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.kata.spring.boot_security.demo.entity.User;
@@ -55,11 +53,5 @@ public class  UserServiceImpl implements UserService {
         return false;
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username);
-        if (user == null) { throw new UsernameNotFoundException("User not found"); }
-        return user;
-    }
 
 }

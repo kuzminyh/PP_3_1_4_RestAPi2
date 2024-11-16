@@ -10,10 +10,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -32,12 +30,11 @@ public class User implements UserDetails {
     @Column(name = "id")
     private int id;
 
-    @Email(message = "Некорректный адрес электронной почты")
     @NotBlank(message = "Имя не может быть пустым")
     @Column(name = "name")
     private String name;
 
-    @Pattern(regexp = "^[A-Z[А-ЯЁ]][a-z[а-яё]]{1,30}", message = "Surname is incorrect. Example: Иванов / Ivanov")
+    @NotBlank(message = "Имя не может быть пустым")
     @Column(name = "surname")
     private String surname;
 
