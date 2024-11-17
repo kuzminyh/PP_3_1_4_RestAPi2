@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.kata.spring.boot_security.demo.entity.User;
+import ru.kata.spring.boot_security.demo.exception.UsernameSuchNotFoundException;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
 import java.util.List;
@@ -40,7 +41,7 @@ public class  UserServiceImpl implements UserService {
 
     public User getUser(int id) {
         Optional<User> userFromDB = userRepository.findById(id);
-        return userFromDB.orElseThrow(() -> new EntityNotFoundException("User с этим id найден"))  ;
+        return userFromDB.orElseThrow(() -> new UsernameSuchNotFoundException("User с этим id не найден"))  ;
             //    orElse(new User());
     }
 
