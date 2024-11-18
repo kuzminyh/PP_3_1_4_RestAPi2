@@ -35,6 +35,7 @@ public class  UserServiceImpl implements UserService {
 
     @Transactional
     public boolean updateUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         return true;
     }
